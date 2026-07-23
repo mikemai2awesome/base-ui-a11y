@@ -728,6 +728,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         expect(highRoot.getAttribute('aria-modal')).toBe('false');
         expect(screen.getByRole('alert')).not.toBe(null);
         expect(screen.getByRole('alert').getAttribute('aria-atomic')).toBe('true');
+        expect(screen.getByRole('alert').getAttribute('aria-live')).toBe('assertive');
 
         const closeHighButton = screen.getByLabelText('close-press');
         fireEvent.click(closeHighButton);

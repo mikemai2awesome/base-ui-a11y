@@ -67,6 +67,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const role = store.useState('role');
+  const topLayer = store.useState('topLayer');
   const floatingId = floatingRootContext.useState('floatingId');
 
   const popupId = elementProps.id ?? floatingId;
@@ -75,9 +76,10 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   // When native `<dialog>` is available, a fully modal dialog delegates the top layer, `::backdrop`,
   // background `inert`, and the Tab focus trap to the browser via `showModal()`. Non-modal and
-  // `'trap-focus'` dialogs — as well as unsupported environments — keep relying on the JavaScript
-  // layer (`FloatingFocusManager`, the internal backdrop, and `useDismiss`).
-  const canUseNativeDialog = React.useMemo(supportsNativeDialog, []);
+  // `'trap-focus'` dialogs, dialogs with `topLayer={false}` — as well as unsupported environments —
+  // keep relying on the JavaScript layer (`FloatingFocusManager`, the internal backdrop, and
+  // `useDismiss`).
+  const canUseNativeDialog = React.useMemo(() => topLayer && supportsNativeDialog(), [topLayer]);
   const nativeModalActive = canUseNativeDialog && modal === true;
 
   useOpenChangeComplete({

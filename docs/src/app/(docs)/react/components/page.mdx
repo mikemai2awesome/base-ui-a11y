@@ -112,7 +112,7 @@ A dialog that requires a user response to proceed.
     - Handle
 - Exports:
   - Alert Dialog - Root
-    - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, onOpenChange, onOpenChangeComplete, open, triggerId
+    - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, onOpenChange, onOpenChangeComplete, open, topLayer, triggerId
   - Alert Dialog - Trigger
     - Props: className, handle, id, nativeButton, payload, render, style
     - Data Attributes: data-disabled, data-popup-open
@@ -652,6 +652,7 @@ A popup that opens on top of the entire page.
     - Detached triggers
     - Multiple triggers
     - Controlled mode with multiple triggers
+    - Page overlays above a modal dialog
   - Accessibility
   - API reference
     - Root
@@ -667,7 +668,7 @@ A popup that opens on top of the entire page.
     - Handle
 - Exports:
   - Dialog - Root
-    - Props: actionsRef, children, defaultOpen, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, open, triggerId
+    - Props: actionsRef, children, defaultOpen, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, open, topLayer, triggerId
   - Dialog - Trigger
     - Props: className, handle, id, nativeButton, payload, render, style
     - Data Attributes: data-disabled, data-popup-open

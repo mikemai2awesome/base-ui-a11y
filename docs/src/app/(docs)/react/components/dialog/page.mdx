@@ -288,6 +288,18 @@ import { DemoDialogDetachedTriggersControlled } from './demos/detached-triggers-
 
 <DemoDialogDetachedTriggersControlled />
 
+### Page overlays above a modal dialog
+
+By default, a modal dialog is promoted to the browser's [top layer](https://developer.mozilla.org/en-US/docs/Glossary/Top_layer), which sits above every other element on the page—including toasts, tooltips, and third-party widgets rendered outside the dialog. Set `topLayer={false}` to keep the dialog out of the top layer. It's then rendered as a JavaScript-driven overlay instead: page overlays stay visible, announced by screen readers, and clickable above it, and focus is still fully contained inside the dialog while it's open.
+
+**Raising toasts over modal dialogs? Use `topLayer={false}`.**
+
+Because a `topLayer={false}` dialog stacks with the rest of the page by `z-index` alone rather than being elevated automatically, give any overlay that must stay actionable—like a toast with an Undo button—a higher `z-index` than the dialog's popup and backdrop.
+
+import { DemoDialogPageToasts } from './demos/page-toasts';
+
+<DemoDialogPageToasts />
+
 ## Accessibility
 
 - **Role**: `<Dialog.Popup>` renders `role="dialog"`.

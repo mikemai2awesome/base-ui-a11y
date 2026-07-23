@@ -1003,4 +1003,146 @@ describe('<Dialog.Popup />', () => {
       expect(nestedDialog).not.toHaveAttribute('data-nested-dialog-open');
     });
   });
+
+  // Relies on native modal `<dialog>` promotion (`:modal`), which jsdom does not implement.
+  describe.skipIf(isJSDOM)('prop: topLayer', () => {
+    it('promotes a modal dialog to the top layer by default', async () => {
+      await render(
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const dialog = screen.getByRole('dialog') as HTMLDialogElement;
+      expect(dialog.open).toBe(true);
+      expect(dialog.matches(':modal')).toBe(true);
+    });
+
+    it('keeps a modal dialog out of the top layer when topLayer={false}', async () => {
+      await render(
+        <Dialog.Root open topLayer={false}>
+          <Dialog.Portal>
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const dialog = screen.getByRole('dialog') as HTMLDialogElement;
+      expect(dialog.open).toBe(true);
+      expect(dialog.matches(':modal')).toBe(false);
+    });
+
+    it('still traps focus inside the popup when topLayer={false}', async () => {
+      const { user } = await render(
+        <div>
+          <input data-testid="outside-before" />
+          <Dialog.Root topLayer={false}>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <input data-testid="first-input" />
+                <button type="button" data-testid="second-button">
+                  Second
+                </button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <input data-testid="outside-after" />
+        </div>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('first-input')).toHaveFocus();
+      });
+
+      await user.keyboard('[Tab]');
+      expect(screen.getByTestId('second-button')).toHaveFocus();
+
+      await user.keyboard('[Tab]');
+      await waitFor(() => {
+        expect(screen.getByTestId('first-input')).toHaveFocus();
+      });
+      expect(screen.getByTestId('outside-before')).not.toHaveFocus();
+      expect(screen.getByTestId('outside-after')).not.toHaveFocus();
+    });
+
+    it('still closes on Escape when topLayer={false}', async () => {
+      const { user } = await render(
+        <Dialog.Root topLayer={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByText('Open'));
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).not.toBe(null);
+      });
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+    });
+
+    it('still closes on outside press (internal backdrop) when topLayer={false}', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <Dialog.Root topLayer={false} defaultOpen onOpenChange={handleOpenChange}>
+          <Dialog.Portal>
+            <Dialog.Popup />
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const internalBackdrop = screen.getByRole('presentation', { hidden: true });
+
+      fireEvent.mouseDown(internalBackdrop);
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(0);
+
+      fireEvent.click(internalBackdrop);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      expect(handleOpenChange.mock.calls.length).toBe(1);
+    });
+
+    it('keeps an external aria-live region unhidden and interactive when topLayer={false}', async () => {
+      const handleClick = vi.fn();
+
+      await render(
+        <div>
+          <div role="status" aria-live="polite" data-testid="toast">
+            <button type="button" onClick={handleClick}>
+              Undo
+            </button>
+          </div>
+          <Dialog.Root open topLayer={false}>
+            <Dialog.Portal>
+              <Dialog.Popup />
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).not.toBe(null);
+      });
+
+      const toast = screen.getByTestId('toast');
+      expect(toast).not.toHaveAttribute('aria-hidden');
+
+      const undoButton = screen.getByRole('button', { name: 'Undo' });
+      fireEvent.click(undoButton);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+  });
 });

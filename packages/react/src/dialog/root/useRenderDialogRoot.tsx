@@ -19,6 +19,7 @@ export function useRenderDialogRoot<Payload>(
     onOpenChangeComplete,
     disablePointerDismissal: disablePointerDismissalProp = false,
     modal: modalProp = true,
+    topLayer: topLayerProp = true,
     actionsRef,
     handle,
     triggerId: triggerIdProp,
@@ -33,7 +34,7 @@ export function useRenderDialogRoot<Payload>(
 
   const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
-  const rootState = { modal, disablePointerDismissal, nested, role };
+  const rootState = { modal, disablePointerDismissal, nested, role, topLayer: topLayerProp };
 
   const store = useDialogRootStore(handle, {
     open: defaultOpen,

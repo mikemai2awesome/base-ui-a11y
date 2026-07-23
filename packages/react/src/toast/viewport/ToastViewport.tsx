@@ -312,7 +312,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       {!focused && highPriorityToasts.length > 0 && (
         <div style={visuallyHidden}>
           {highPriorityToasts.map((toast) => (
-            <div key={toast.id} role="alert" aria-atomic>
+            // `aria-live` is redundant with `role="alert"` for announcement, but it's required so
+            // `markOthers`' `[aria-live]` exemption keeps assertive toasts announced when a
+            // JS-modal (`topLayer={false}`) dialog hides the rest of the page from assistive tech.
+            <div key={toast.id} role="alert" aria-live="assertive" aria-atomic>
               <div>{toast.title}</div>
               <div>{toast.description}</div>
             </div>

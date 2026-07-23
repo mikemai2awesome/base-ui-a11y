@@ -58,6 +58,18 @@ export interface DialogRootProps<Payload = unknown> {
    */
   disablePointerDismissal?: boolean | undefined;
   /**
+   * Whether a modal dialog is promoted to the browser's top layer via the native
+   * `<dialog>` `showModal()`. When `false`, the dialog is rendered as a JavaScript
+   * overlay instead: it stays out of the top layer, so page overlays like toasts
+   * (and third-party widgets) remain visible, announced, and interactive above it,
+   * and focus is fully contained rather than allowed to reach the browser chrome.
+   *
+   * Only applies when `modal` is `true`; non-modal and `'trap-focus'` dialogs are
+   * never promoted to the top layer.
+   * @default true
+   */
+  topLayer?: boolean | undefined;
+  /**
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the dialog.
    * Call this after any externally controlled closing animation finishes.

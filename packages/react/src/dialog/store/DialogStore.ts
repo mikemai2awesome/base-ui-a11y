@@ -25,6 +25,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   descriptionElementId: string | undefined;
   viewportElement: HTMLElement | null;
   role: 'dialog' | 'alertdialog';
+  topLayer: boolean;
 };
 
 type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
@@ -48,6 +49,7 @@ const selectors = {
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
   viewportElement: createSelector((state: State<unknown>) => state.viewportElement),
   role: createSelector((state: State<unknown>) => state.role),
+  topLayer: createSelector((state: State<unknown>) => state.topLayer),
 };
 
 /**
@@ -139,6 +141,7 @@ function createInitialState<Payload>(
     nestedOpenDialogCount: 0,
     nestedOpenDrawerCount: 0,
     role: 'dialog',
+    topLayer: true,
     ...initialState,
   };
 
