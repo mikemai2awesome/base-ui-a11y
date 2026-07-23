@@ -1144,5 +1144,75 @@ describe('<Dialog.Popup />', () => {
       fireEvent.click(undoButton);
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
+
+    it('plays the backdrop exit transition before unmounting while in the top layer', async () => {
+      // The popup drives the unmount wait (the framework observes the popup's animations), while
+      // the shorter backdrop transition proves the separate JS-animated backdrop still completes
+      // its exit transition even though the dialog itself is promoted to the native top layer.
+      const css = `
+        .backdrop {
+          opacity: 0;
+          transition: opacity 120ms;
+        }
+        .backdrop[data-open] {
+          opacity: 1;
+        }
+        .popup {
+          opacity: 0;
+          transition: opacity 200ms;
+        }
+        .popup[data-open] {
+          opacity: 1;
+        }
+      `;
+
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const notifyBackdropTransitionEnd = vi.fn();
+
+      function App(props: { open: boolean }) {
+        return (
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: css }} />
+            <Dialog.Root open={props.open}>
+              <Dialog.Portal keepMounted>
+                <Dialog.Backdrop
+                  className="backdrop"
+                  data-testid="backdrop"
+                  onTransitionEnd={notifyBackdropTransitionEnd}
+                />
+                <Dialog.Popup className="popup" />
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<App open />);
+
+      // The dialog is genuinely promoted to the top layer via native `showModal()`.
+      const dialog = screen.getByRole('dialog') as HTMLDialogElement;
+      expect(dialog.matches(':modal')).toBe(true);
+
+      const backdrop = screen.getByTestId('backdrop');
+
+      await setProps({ open: false });
+
+      // The backdrop stays mounted and starts its exit transition rather than being torn down
+      // immediately with the top-layer dialog.
+      expect(screen.getByTestId('backdrop')).not.toBe(null);
+      await waitFor(() => {
+        expect(backdrop.getAnimations().length).not.toBe(0);
+      });
+
+      // The popup only unmounts once its (longer) exit transition finishes.
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      // The backdrop's own transition ran to completion beforehand.
+      expect(notifyBackdropTransitionEnd.mock.calls.length).toBe(1);
+    });
   });
 });
