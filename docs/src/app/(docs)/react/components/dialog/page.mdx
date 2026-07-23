@@ -140,6 +140,14 @@ function ExampleMenu() {
 }
 ```
 
+### Preventing dismissal
+
+Set `disablePointerDismissal` to keep the dialog open when the user presses outside of it. For non-modal dialogs, this also keeps the dialog open when focus moves outside of it. The <kbd>Escape</kbd> key and `<Dialog.Close>` still close the dialog.
+
+import { DemoDialogPreventingDismissal } from './demos/preventing-dismissal';
+
+<DemoDialogPreventingDismissal />
+
 ### Nested dialogs
 
 You can nest dialogs within one another normally.
@@ -302,7 +310,7 @@ import { DemoDialogPageToasts } from './demos/page-toasts';
 
 ## Accessibility
 
-- **Role**: `<Dialog.Popup>` renders `role="dialog"`.
+- **Role**: `<Dialog.Popup>` renders a native `<dialog>` element, which has an implicit `role="dialog"`.
 - **Labeling**: `<Dialog.Title>` provides the popup's accessible name through `aria-labelledby`, and `<Dialog.Description>` provides its accessible description through `aria-describedby`. Always render a title, even if it's visually hidden.
 - **Keyboard interactions**:
   - <kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> — when `modal` is `true` (the default) or `'trap-focus'`,
@@ -313,8 +321,6 @@ import { DemoDialogPageToasts } from './demos/page-toasts';
   - <kbd>Enter</kbd> / <kbd>Space</kbd> — activates the focused trigger or button.
 - **Focus management**: opening the dialog moves focus to its first focusable element (or to the popup itself on touch, to avoid triggering the virtual keyboard). Closing it returns focus to the trigger that opened it. Render `<Dialog.Close>` inside the popup so touch screen reader users always have a way to dismiss it when `modal` traps focus.
 - **Non-modal dialogs**: setting `modal={false}` removes the focus trap and lets the rest of the page stay interactive—use this only when the dialog's content doesn't require the user's full attention.
-
-This pattern follows the [ARIA APG Dialog (Modal) pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
 
 ## API reference
 
