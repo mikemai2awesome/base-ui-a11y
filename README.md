@@ -1,3 +1,5 @@
+> This is an experimental fork. Use at your own risk.
+
 # Base UI
 
 From the creators of Radix, Floating UI, and Material UI, Base UI is an unstyled UI component library for building accessible user interfaces.
