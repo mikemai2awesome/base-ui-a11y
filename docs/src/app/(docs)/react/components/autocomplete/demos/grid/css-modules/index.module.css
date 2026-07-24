@@ -3,10 +3,48 @@
   margin: 0 auto;
 }
 
+.ComposerLabel {
+  display: block;
+  margin-block-end: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
 .InputGroup {
   position: relative;
   display: flex;
   width: 100%;
+}
+
+.SearchLabel {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 16rem;
+  max-width: 100%;
+  border: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
+}
+
+.SearchLabelText {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 400;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }
 
 .TextInput {
@@ -170,11 +208,10 @@
 .Input {
   box-sizing: border-box;
   padding: 0 0.5rem;
-  border: 1px solid oklch(14.5% 0 0deg);
+  border: none;
   border-radius: 0;
   margin: 0;
-  width: 16rem;
-  max-width: 100%;
+  width: 100%;
   height: var(--input-container-height);
   font-family: inherit;
   font-size: 0.875rem;
@@ -191,7 +228,6 @@
   @media (prefers-color-scheme: dark) {
     background-color: oklch(14.5% 0 0deg);
     color: white;
-    border-color: white;
   }
 
   &::placeholder {
@@ -227,6 +263,7 @@
 
 .Popup {
   --input-container-height: 2rem;
+  --search-label-height: 1.75rem;
   box-sizing: border-box;
   background-color: white;
   color: oklch(14.5% 0 0deg);
@@ -257,8 +294,8 @@
   scroll-padding-bottom: 0.35rem;
   overscroll-behavior: contain;
   max-height: min(
-    calc(20.5rem - var(--input-container-height) - 2px),
-    calc(var(--available-height) - var(--input-container-height) - 2px)
+    calc(20.5rem - var(--input-container-height) - var(--search-label-height) - 2px),
+    calc(var(--available-height) - var(--input-container-height) - var(--search-label-height) - 2px)
   );
   padding-block: 0.5rem;
 

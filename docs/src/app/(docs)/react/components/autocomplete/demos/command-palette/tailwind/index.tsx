@@ -23,11 +23,12 @@ export default function ExampleAutocompleteCommandPalette() {
           aria-label="Command palette"
         >
           <Autocomplete.Root open inline items={groupedItems} autoHighlight="always" keepHighlight>
-            <Autocomplete.Input
-              className="relative z-1 h-10 w-full border-0 bg-white px-3 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
-              aria-label="Search commands"
-              placeholder="Search for apps and commands…"
-            />
+            <label className="flex flex-col">
+              <span className="px-3 py-2 text-xs leading-none font-normal text-neutral-600 dark:text-neutral-400">
+                Search commands
+              </span>
+              <Autocomplete.Input className="relative z-1 h-10 w-full border-0 bg-white px-3 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400" />
+            </label>
             <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
             <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden border-t border-neutral-950 dark:border-t-white">

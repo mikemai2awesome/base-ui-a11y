@@ -6,6 +6,7 @@ export default function ExampleEmojiPicker() {
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [textValue, setTextValue] = React.useState('');
   const [searchValue, setSearchValue] = React.useState('');
+  const messageId = React.useId();
 
   const textInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -31,12 +32,18 @@ export default function ExampleEmojiPicker() {
 
   return (
     <div className="mx-auto w-[16rem]">
+      <label
+        htmlFor={messageId}
+        className="mb-1 block text-sm leading-5 font-bold text-neutral-950 dark:text-white"
+      >
+        Message
+      </label>
       <div className="relative flex w-full">
         <input
+          id={messageId}
           ref={textInputRef}
           type="text"
           className="-mr-px h-8 flex-1 border border-r-0 border-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 bg-white dark:bg-neutral-950 focus:relative focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
-          placeholder="iMessage"
           value={textValue}
           onChange={(event) => setTextValue(event.target.value)}
         />
@@ -63,20 +70,22 @@ export default function ExampleEmojiPicker() {
           <Autocomplete.Portal>
             <Autocomplete.Positioner className="outline-0" sideOffset={4} align="end">
               <Autocomplete.Popup
-                className="[--input-container-height:2rem] max-h-[20.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-starting-style:scale-90 data-starting-style:opacity-0 dark:bg-neutral-950 dark:text-white dark:shadow-none"
+                className="[--input-container-height:2rem] [--search-label-height:1.75rem] max-h-[20.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-starting-style:scale-90 data-starting-style:opacity-0 dark:bg-neutral-950 dark:text-white dark:shadow-none"
                 aria-label="Select emoji"
               >
-                <Autocomplete.Input
-                  placeholder="Search emojis…"
-                  className="h-8 w-64 max-w-full border border-neutral-950 bg-white px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white"
-                />
+                <label className="flex w-64 max-w-full flex-col border border-neutral-950 dark:border-white">
+                  <span className="px-2 py-2 text-xs leading-none font-normal text-neutral-600 dark:text-neutral-400">
+                    Search emojis
+                  </span>
+                  <Autocomplete.Input className="h-8 w-full bg-white px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:bg-neutral-950 dark:text-white" />
+                </label>
                 <div className="border border-t-0 border-neutral-950 dark:border-white">
                   <Autocomplete.Empty>
                     <div className="px-2 py-3 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
                       No emojis found
                     </div>
                   </Autocomplete.Empty>
-                  <Autocomplete.List className="max-h-[min(calc(20.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto scroll-pt-1 scroll-pb-[0.35rem] overscroll-contain py-2 empty:p-0">
+                  <Autocomplete.List className="max-h-[min(calc(20.5rem-var(--input-container-height)-var(--search-label-height)-2px),calc(var(--available-height)-var(--input-container-height)-var(--search-label-height)-2px))] overflow-auto scroll-pt-1 scroll-pb-[0.35rem] overscroll-contain py-2 empty:p-0">
                     {(group: EmojiGroup) => (
                       <Autocomplete.Group key={group.value} items={group.items} className="block">
                         <Autocomplete.GroupLabel className="p-2 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">

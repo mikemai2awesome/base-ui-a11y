@@ -7,6 +7,7 @@ export default function ExampleEmojiPicker() {
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [textValue, setTextValue] = React.useState('');
   const [searchValue, setSearchValue] = React.useState('');
+  const messageId = React.useId();
 
   const textInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -32,12 +33,15 @@ export default function ExampleEmojiPicker() {
 
   return (
     <div className={styles.Container}>
+      <label htmlFor={messageId} className={styles.ComposerLabel}>
+        Message
+      </label>
       <div className={styles.InputGroup}>
         <input
+          id={messageId}
           ref={textInputRef}
           type="text"
           className={styles.TextInput}
-          placeholder="iMessage"
           value={textValue}
           onChange={(event) => setTextValue(event.target.value)}
         />
@@ -61,7 +65,10 @@ export default function ExampleEmojiPicker() {
           <Autocomplete.Portal>
             <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="end">
               <Autocomplete.Popup className={styles.Popup} aria-label="Select emoji">
-                <Autocomplete.Input placeholder="Search emojis…" className={styles.Input} />
+                <label className={styles.SearchLabel}>
+                  <span className={styles.SearchLabelText}>Search emojis</span>
+                  <Autocomplete.Input className={styles.Input} />
+                </label>
                 <div className={styles.Viewport}>
                   <Autocomplete.Empty>
                     <div className={styles.Empty}>No emojis found</div>

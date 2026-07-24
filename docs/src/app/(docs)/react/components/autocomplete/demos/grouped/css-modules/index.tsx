@@ -7,7 +7,7 @@ export default function ExampleGroupAutocomplete() {
     <Autocomplete.Root items={groupedTags}>
       <label className={styles.Label}>
         Select a tag
-        <Autocomplete.Input placeholder="e.g. feature" className={styles.Input} />
+        <Autocomplete.Input className={styles.Input} />
       </label>
 
       <Autocomplete.Portal>

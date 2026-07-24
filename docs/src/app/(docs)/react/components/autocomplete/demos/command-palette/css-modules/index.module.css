@@ -110,6 +110,23 @@
   }
 }
 
+.SearchLabel {
+  display: flex;
+  flex-direction: column;
+}
+
+.SearchLabelText {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 400;
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
 .Input {
   box-sizing: border-box;
   position: relative;

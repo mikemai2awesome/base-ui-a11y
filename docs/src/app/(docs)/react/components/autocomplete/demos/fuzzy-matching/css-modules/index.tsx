@@ -13,7 +13,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
     >
       <label className={styles.Label}>
         Fuzzy search documentation
-        <Autocomplete.Input placeholder="e.g. React" className={styles.Input} />
+        <Autocomplete.Input className={styles.Input} />
       </label>
 
       <Autocomplete.Portal>

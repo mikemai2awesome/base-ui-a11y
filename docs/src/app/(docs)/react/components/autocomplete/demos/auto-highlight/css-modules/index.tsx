@@ -7,7 +7,7 @@ export default function ExampleAutocompleteAutoHighlight() {
     <Autocomplete.Root items={tags} autoHighlight>
       <label className={styles.Label}>
         Auto highlight on type
-        <Autocomplete.Input placeholder="e.g. feature" className={styles.Input} />
+        <Autocomplete.Input className={styles.Input} />
       </label>
 
       <Autocomplete.Portal>

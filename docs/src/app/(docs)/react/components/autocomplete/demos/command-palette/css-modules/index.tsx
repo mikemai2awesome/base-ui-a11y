@@ -19,11 +19,10 @@ export default function ExampleAutocompleteCommandPalette() {
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup} aria-label="Command palette">
           <Autocomplete.Root open inline items={groupedItems} autoHighlight="always" keepHighlight>
-            <Autocomplete.Input
-              className={styles.Input}
-              aria-label="Search commands"
-              placeholder="Search for apps and commands…"
-            />
+            <label className={styles.SearchLabel}>
+              <span className={styles.SearchLabelText}>Search commands</span>
+              <Autocomplete.Input className={styles.Input} />
+            </label>
             <Dialog.Close className={styles.VisuallyHidden}>Close command palette</Dialog.Close>
 
             <ScrollArea.Root className={styles.ListArea}>
