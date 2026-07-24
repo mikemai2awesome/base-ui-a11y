@@ -18,7 +18,14 @@ function getViewportScroller(html: HTMLElement, body: HTMLElement) {
 }
 
 function isPageScrollLocked(win: typeof window, html: HTMLElement, body: HTMLElement) {
-  return /hidden|clip/.test(win.getComputedStyle(getViewportScroller(html, body)).overflowY);
+  if (/hidden|clip/.test(win.getComputedStyle(getViewportScroller(html, body)).overflowY)) {
+    return true;
+  }
+  // Position-based lockers (tua-body-scroll-lock, body-scroll-lock's iOS path) pin the page with
+  // `position: fixed` on <body> instead of touching overflow. Base UI's own lock uses
+  // `position: relative`, so this only ever matches an external lock we must wait to take over
+  // rather than snapshotting and later restoring.
+  return win.getComputedStyle(body).position === 'fixed';
 }
 
 function hasInsetScrollbars(referenceElement: Element | null) {
@@ -267,6 +274,10 @@ class ScrollLocker {
     // hasn't cleaned up yet. Leave it alone and wait for the lock to clear before taking over,
     // otherwise we'd snapshot the locked state and restore it after our own lock is released.
     if (isPageScrollLocked(win, html, body)) {
+      // The observer is intentionally unbounded (it runs until the lock clears or we release). A
+      // timeout fallback would let us give up and lock ourselves mid-handoff, reintroducing the
+      // exact scroll gap this branch exists to prevent. A permanent external lock simply means we
+      // never take over, which is the desired outcome.
       const observer = new win.MutationObserver(() => {
         if (isPageScrollLocked(win, html, body)) {
           return;

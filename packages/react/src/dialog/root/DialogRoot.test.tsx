@@ -1532,6 +1532,20 @@ describe('<Dialog.Root />', () => {
             };
           },
         },
+        {
+          name: 'tua-body-scroll-lock, via <body> position: fixed',
+          lock: () => {
+            const { style } = document.body;
+            style.setProperty('position', 'fixed');
+            style.setProperty('inset', '0');
+            style.setProperty('width', '100%');
+            return () => {
+              style.removeProperty('position');
+              style.removeProperty('inset');
+              style.removeProperty('width');
+            };
+          },
+        },
       ])('$name', ({ lock }) => {
         it('keeps the page locked until it takes over, and unlocks on close', async () => {
           function App() {
@@ -1864,13 +1878,21 @@ describe('<Dialog.Root />', () => {
   );
 });
 
-// The viewport takes its overflow from <html>, falling back to <body> when <html> doesn't
-// establish its own scroll container. Whichever one propagates decides if the user can scroll.
+// An oracle independent of the library's own scroller-selection heuristic. Production picks a single
+// viewport scroller via `getViewportScroller`/`isOverflowElement` and inspects only that element; a
+// test that reused that choice could pass even if the choice were wrong. Instead, assert the
+// continuity invariant directly: throughout a handoff *some* lock (overflow on either
+// viewport-controlling element, or a position-based body lock) must always be present, so there is
+// never a frame where the page can scroll. Programmatic scrolling can't be used to observe this
+// because `overflow: hidden` still permits scripted `scrollTo`.
 function isPageLocked() {
-  const html = document.documentElement;
-  const { overflow, overflowX, overflowY } = getComputedStyle(html);
-  const htmlScrolls = /auto|scroll|overlay|hidden|clip/.test(overflow + overflowY + overflowX);
-  return /hidden|clip/.test(getComputedStyle(htmlScrolls ? html : document.body).overflowY);
+  const html = getComputedStyle(document.documentElement);
+  const body = getComputedStyle(document.body);
+  return (
+    /hidden|clip/.test(html.overflowY) ||
+    /hidden|clip/.test(body.overflowY) ||
+    body.position === 'fixed'
+  );
 }
 
 // When <html> is the viewport scroller, Base UI hides its overflow to lock the page. An external

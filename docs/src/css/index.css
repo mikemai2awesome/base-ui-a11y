@@ -446,9 +446,10 @@
   /*
    * A modal `<Dialog.Popup>` renders a native `<dialog>`, which the UA paints with a translucent
    * `::backdrop` (`rgba(0, 0, 0, 0.1)`). `<Dialog.Backdrop>` already renders the overlay, so the
-   * native one would double-dim the page. Neutralize it and let `<Dialog.Backdrop>` be authoritative.
+   * native one would double-dim the page. Scope the reset to Base UI's portalled dialog so any
+   * other native `<dialog>` on the page keeps its UA backdrop.
    */
-  dialog::backdrop {
+  [data-base-ui-portal] dialog::backdrop {
     background-color: transparent;
   }
 

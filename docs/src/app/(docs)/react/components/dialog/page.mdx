@@ -324,7 +324,7 @@ import { DemoDialogPageToasts } from './demos/page-toasts';
 - **Focus management**: opening the dialog moves focus to its first focusable element (or to the popup itself on touch, to avoid triggering the virtual keyboard). Closing it returns focus to the trigger that opened it. Render `<Dialog.Close>` inside the popup so touch screen reader users always have a way to dismiss it when `modal` traps focus.
 - **Non-modal dialogs**: setting `modal={false}` removes the focus trap and lets the rest of the page stay interactive—use this only when the dialog's content doesn't require the user's full attention.
 - **Live regions while open**: a default (top-layer) modal makes the rest of the page inert, so [live region](https://www.w3.org/WAI/ARIA/apg/practices/live-regions/) updates outside the dialog aren't announced while it's open. See [Page overlays above a modal dialog](#page-overlays-above-a-modal-dialog) and use `topLayer={false}` when those announcements must still reach the user.
-- **Backdrop**: render the overlay with `<Dialog.Backdrop>`, which stays in sync with the dialog's open state and transitions. Because a modal popup is a native `<dialog>`, keep the UA `dialog::backdrop` transparent (reset it in your global styles) so it doesn't dim the page on top of `<Dialog.Backdrop>`.
+- **Backdrop**: render the overlay with `<Dialog.Backdrop>`, which stays in sync with the dialog's open state and transitions. Because a modal popup is a native `<dialog>`, keep its UA `::backdrop` transparent for Base UI's portalled dialog (`[data-base-ui-portal] dialog::backdrop`) in your global styles so it doesn't dim the page on top of `<Dialog.Backdrop>`—scoping it this way leaves any other native `<dialog>` you render untouched.
 
 ## API reference
 
