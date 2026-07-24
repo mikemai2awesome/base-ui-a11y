@@ -9,20 +9,25 @@ export default function ExampleDialog() {
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
   const [textareaValue, setTextareaValue] = React.useState('');
   const titleId = React.useId();
+  const confirmationPopupRef = React.useRef<HTMLDialogElement>(null);
 
   return (
     <Dialog.Root
       open={dialogOpen}
-      onOpenChange={(open) => {
+      onOpenChange={(open, eventDetails) => {
         // Show the close confirmation if there’s text in the textarea
         if (!open && textareaValue) {
+          // Keep the dialog open so focus can move to the confirmation
+          eventDetails.cancel();
           setConfirmationOpen(true);
-        } else {
+          return;
+        }
+        if (!open) {
           // Reset the text area value
           setTextareaValue('');
-          // Open or close the dialog normally
-          setDialogOpen(open);
         }
+        // Open or close the dialog normally
+        setDialogOpen(open);
       }}
     >
       <Dialog.Trigger className={styles.Button}>Tweet</Dialog.Trigger>
@@ -63,7 +68,13 @@ export default function ExampleDialog() {
       {/* Confirmation dialog */}
       <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
-          <AlertDialog.Popup className={styles.Popup}>
+          {/* Focus the popup itself so Safari + VoiceOver announces the dialog and
+              moves the virtual cursor into it, rather than silently focusing a button */}
+          <AlertDialog.Popup
+            ref={confirmationPopupRef}
+            initialFocus={confirmationPopupRef}
+            className={styles.Popup}
+          >
             <div className={styles.Intro}>
               <AlertDialog.Title className={styles.Title}>Discard tweet?</AlertDialog.Title>
               <AlertDialog.Description className={styles.Description}>
@@ -77,6 +88,7 @@ export default function ExampleDialog() {
                 className={styles.Button}
                 onClick={() => {
                   setConfirmationOpen(false);
+                  setTextareaValue('');
                   setDialogOpen(false);
                 }}
               >

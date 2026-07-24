@@ -77,6 +77,9 @@
 
 .Popup {
   box-sizing: border-box;
+  /* Reset the native <dialog> user-agent margin and padding so the content sits flush. */
+  margin: 0;
+  padding: 0;
   position: fixed;
   inset-block-start: 4.5rem;
   inset-inline-start: 50%;

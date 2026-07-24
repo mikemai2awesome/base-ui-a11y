@@ -8,6 +8,7 @@ export default function ExampleDrawer() {
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
   const [textareaValue, setTextareaValue] = React.useState('');
   const titleId = React.useId();
+  const confirmationPopupRef = React.useRef<HTMLDialogElement>(null);
 
   return (
     <Drawer.Root
@@ -79,7 +80,13 @@ export default function ExampleDrawer() {
       {/* Confirmation dialog */}
       <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
-          <AlertDialog.Popup className="fixed top-1/2 left-1/2 -mt-8 flex w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[translate,scale,opacity] duration-100 ease-out data-ending-style:translate-y-[calc(-50%+0.25rem)] data-ending-style:scale-[0.96] data-ending-style:opacity-0 data-starting-style:translate-y-[calc(-50%+0.25rem)] data-starting-style:scale-[0.96] data-starting-style:opacity-0">
+          {/* Focus the popup itself so Safari + VoiceOver announces the dialog and
+              moves the virtual cursor into it, rather than silently focusing a button */}
+          <AlertDialog.Popup
+            ref={confirmationPopupRef}
+            initialFocus={confirmationPopupRef}
+            className="fixed top-1/2 left-1/2 -mt-8 flex w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[translate,scale,opacity] duration-100 ease-out data-ending-style:translate-y-[calc(-50%+0.25rem)] data-ending-style:scale-[0.96] data-ending-style:opacity-0 data-starting-style:translate-y-[calc(-50%+0.25rem)] data-starting-style:scale-[0.96] data-starting-style:opacity-0"
+          >
             <div className="flex flex-col gap-1">
               <AlertDialog.Title className="text-base font-bold">Discard tweet?</AlertDialog.Title>
               <AlertDialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">

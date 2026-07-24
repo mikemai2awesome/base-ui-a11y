@@ -8,20 +8,25 @@ export default function ExampleDialog() {
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
   const [textareaValue, setTextareaValue] = React.useState('');
   const titleId = React.useId();
+  const confirmationPopupRef = React.useRef<HTMLDialogElement>(null);
 
   return (
     <Dialog.Root
       open={dialogOpen}
-      onOpenChange={(open) => {
+      onOpenChange={(open, eventDetails) => {
         // Show the close confirmation if there’s text in the textarea
         if (!open && textareaValue) {
+          // Keep the dialog open so focus can move to the confirmation
+          eventDetails.cancel();
           setConfirmationOpen(true);
-        } else {
+          return;
+        }
+        if (!open) {
           // Reset the text area value
           setTextareaValue('');
-          // Open or close the dialog normally
-          setDialogOpen(open);
         }
+        // Open or close the dialog normally
+        setDialogOpen(open);
       }}
     >
       <Dialog.Trigger className="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
@@ -67,7 +72,13 @@ export default function ExampleDialog() {
       {/* Confirmation dialog */}
       <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
-          <AlertDialog.Popup className="fixed top-[calc(50%+1.25rem*var(--nested-dialogs))] left-1/2 -mt-8 flex w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 scale-[calc(1-0.1*var(--nested-dialogs))] bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[top,scale,opacity] duration-100 ease-out after:absolute after:inset-0 after:bg-black/5 after:opacity-0 after:transition-opacity after:duration-100 after:ease-out after:pointer-events-none data-ending-style:top-[calc(50%+0.25rem+1.25rem*var(--nested-dialogs))] data-ending-style:scale-[0.96] data-ending-style:opacity-0 data-nested-dialog-open:after:opacity-100 data-starting-style:top-[calc(50%+0.25rem+1.25rem*var(--nested-dialogs))] data-starting-style:scale-[0.96] data-starting-style:opacity-0">
+          {/* Focus the popup itself so Safari + VoiceOver announces the dialog and
+              moves the virtual cursor into it, rather than silently focusing a button */}
+          <AlertDialog.Popup
+            ref={confirmationPopupRef}
+            initialFocus={confirmationPopupRef}
+            className="fixed top-[calc(50%+1.25rem*var(--nested-dialogs))] left-1/2 -mt-8 flex w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 scale-[calc(1-0.1*var(--nested-dialogs))] bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[top,scale,opacity] duration-100 ease-out after:absolute after:inset-0 after:bg-black/5 after:opacity-0 after:transition-opacity after:duration-100 after:ease-out after:pointer-events-none data-ending-style:top-[calc(50%+0.25rem+1.25rem*var(--nested-dialogs))] data-ending-style:scale-[0.96] data-ending-style:opacity-0 data-nested-dialog-open:after:opacity-100 data-starting-style:top-[calc(50%+0.25rem+1.25rem*var(--nested-dialogs))] data-starting-style:scale-[0.96] data-starting-style:opacity-0"
+          >
             <div className="flex flex-col gap-1">
               <AlertDialog.Title className="text-base font-bold">Discard tweet?</AlertDialog.Title>
               <AlertDialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -83,6 +94,7 @@ export default function ExampleDialog() {
                 className="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
                 onClick={() => {
                   setConfirmationOpen(false);
+                  setTextareaValue('');
                   setDialogOpen(false);
                 }}
               >

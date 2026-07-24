@@ -345,70 +345,67 @@ export function SearchBar({
       <Dialog.Portal>
         <Dialog.Backdrop className="SearchBackdrop" />
         {containedScroll ? (
-          <Dialog.Viewport className="SearchViewportContained">
-            <Dialog.Popup
-              ref={popupRef}
-              initialFocus={inputRef}
-              data-open={dialogOpen}
-              className="SearchPopupContained"
+          <Dialog.Popup
+            ref={popupRef}
+            initialFocus={inputRef}
+            data-open={dialogOpen}
+            className="SearchPopupContained"
+          >
+            <Autocomplete.Root
+              items={searchResults.results}
+              onValueChange={handleValueChange}
+              onOpenChange={handleAutocompleteEscape}
+              onItemHighlighted={handleItemHighlighted}
+              open
+              inline
+              itemToStringValue={itemToStringValue}
+              filter={null}
+              autoHighlight
             >
-              <Autocomplete.Root
-                items={searchResults.results}
-                onValueChange={handleValueChange}
-                onOpenChange={handleAutocompleteEscape}
-                onItemHighlighted={handleItemHighlighted}
-                open
-                inline
-                itemToStringValue={itemToStringValue}
-                filter={null}
-                autoHighlight="always"
-                keepHighlight
-              >
-                <div className="SearchHeadContained">{searchInput}</div>
-                <div className="SearchBody">
-                  <ScrollArea.Root className="SearchScrollAreaRoot">
-                    <ScrollArea.Viewport className="SearchScrollAreaViewport">
-                      <ScrollArea.Content style={{ minWidth: '100%' }}>
-                        {searchResults.results.length === 0 ? (
-                          <EmptyState />
-                        ) : (
-                          <Autocomplete.List
-                            className="SearchList"
-                            onKeyDownCapture={handleKeyDownCapture}
-                          >
-                            {renderResultsList}
-                          </Autocomplete.List>
-                        )}
-                      </ScrollArea.Content>
-                    </ScrollArea.Viewport>
-                    <ScrollArea.Scrollbar className="SearchScrollbar ">
-                      <ScrollArea.Thumb className="SearchScrollbarThumb" />
-                    </ScrollArea.Scrollbar>
-                  </ScrollArea.Root>
+              <div className="SearchHeadContained">{searchInput}</div>
+              <div className="SearchBody">
+                <ScrollArea.Root className="SearchScrollAreaRoot">
+                  <ScrollArea.Viewport className="SearchScrollAreaViewport">
+                    <ScrollArea.Content style={{ minWidth: '100%' }}>
+                      {searchResults.results.length === 0 ? (
+                        <EmptyState />
+                      ) : (
+                        <Autocomplete.List
+                          className="SearchList"
+                          onKeyDownCapture={handleKeyDownCapture}
+                        >
+                          {renderResultsList}
+                        </Autocomplete.List>
+                      )}
+                    </ScrollArea.Content>
+                  </ScrollArea.Viewport>
+                  <ScrollArea.Scrollbar className="SearchScrollbar ">
+                    <ScrollArea.Thumb className="SearchScrollbarThumb" />
+                  </ScrollArea.Scrollbar>
+                </ScrollArea.Root>
+              </div>
+              <div className="SearchFooter">
+                <div className="SearchFooterHint">
+                  <kbd aria-label="Enter" className="SearchFooterEnter">
+                    <CornerDownLeft size={12} />
+                  </kbd>
+                  <span>Go to page</span>
                 </div>
-                <div className="SearchFooter">
-                  <div className="SearchFooterHint">
-                    <kbd aria-label="Enter" className="SearchFooterEnter">
-                      <CornerDownLeft size={12} />
-                    </kbd>
-                    <span>Go to page</span>
-                  </div>
-                </div>
-              </Autocomplete.Root>
-              <Dialog.Close className="SearchClose">Close</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Viewport>
+              </div>
+            </Autocomplete.Root>
+            <Dialog.Close className="SearchClose">Close</Dialog.Close>
+          </Dialog.Popup>
         ) : (
-          <Dialog.Viewport className="SearchViewportDefault">
+          <Dialog.Popup
+            ref={popupRef}
+            initialFocus={inputRef}
+            data-open={dialogOpen}
+            className="SearchPopupDefault"
+          >
             <ScrollArea.Root style={{ position: undefined }} className="SearchRootScrollable">
               <ScrollArea.Viewport className="SearchRootScrollable">
                 <ScrollArea.Content className="SearchContentWrap">
-                  <Dialog.Popup
-                    ref={popupRef}
-                    initialFocus={inputRef}
-                    data-open={dialogOpen}
-                    className="SearchPopupDefault"
-                  >
+                  <div className="SearchCardDefault">
                     <Autocomplete.Root
                       items={searchResults.results}
                       onValueChange={handleValueChange}
@@ -435,14 +432,14 @@ export function SearchBar({
                       </div>
                     </Autocomplete.Root>
                     <Dialog.Close className="SearchClose">Close</Dialog.Close>
-                  </Dialog.Popup>
+                  </div>
                 </ScrollArea.Content>
               </ScrollArea.Viewport>
               <ScrollArea.Scrollbar className="SearchScrollbar ">
                 <ScrollArea.Thumb className="SearchScrollbarThumb" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
-          </Dialog.Viewport>
+          </Dialog.Popup>
         )}
       </Dialog.Portal>
     </Dialog.Root>

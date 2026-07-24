@@ -21,16 +21,16 @@ import { AlertDialog } from '@base-ui/react/alert-dialog';
   <AlertDialog.Trigger />
   <AlertDialog.Portal>
     <AlertDialog.Backdrop />
-    <AlertDialog.Viewport>
-      <AlertDialog.Popup>
-        <AlertDialog.Title />
-        <AlertDialog.Description />
-        <AlertDialog.Close />
-      </AlertDialog.Popup>
-    </AlertDialog.Viewport>
+    <AlertDialog.Popup>
+      <AlertDialog.Title />
+      <AlertDialog.Description />
+      <AlertDialog.Close />
+    </AlertDialog.Popup>
   </AlertDialog.Portal>
 </AlertDialog.Root>;
 ```
+
+`<AlertDialog.Popup>` renders a native [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog) element. It is opened with [`showModal()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal) and promoted to the browser's [top layer](https://developer.mozilla.org/en-US/docs/Glossary/Top_layer), so it anchors to the viewport and traps focus natively—there's no need to wrap it in a positioning container. `<AlertDialog.Viewport>` remains available as an optional positioning container.
 
 ## Examples
 

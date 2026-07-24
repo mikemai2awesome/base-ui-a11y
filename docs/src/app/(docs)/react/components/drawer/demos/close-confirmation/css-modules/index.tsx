@@ -9,6 +9,7 @@ export default function ExampleDrawer() {
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
   const [textareaValue, setTextareaValue] = React.useState('');
   const titleId = React.useId();
+  const confirmationPopupRef = React.useRef<HTMLDialogElement>(null);
 
   return (
     <Drawer.Root
@@ -71,7 +72,13 @@ export default function ExampleDrawer() {
       {/* Confirmation dialog */}
       <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
-          <AlertDialog.Popup className={styles.AlertPopup}>
+          {/* Focus the popup itself so Safari + VoiceOver announces the dialog and
+              moves the virtual cursor into it, rather than silently focusing a button */}
+          <AlertDialog.Popup
+            ref={confirmationPopupRef}
+            initialFocus={confirmationPopupRef}
+            className={styles.AlertPopup}
+          >
             <div className={styles.Intro}>
               <AlertDialog.Title className={styles.Title}>Discard tweet?</AlertDialog.Title>
               <AlertDialog.Description className={styles.Description}>

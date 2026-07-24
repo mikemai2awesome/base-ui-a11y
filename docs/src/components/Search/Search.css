@@ -154,24 +154,41 @@
     }
   }
 
-  .SearchViewportContained {
+  /*
+   * `<Dialog.Popup>` renders a native <dialog> that `showModal()` promotes to the top layer, so the
+   * popup positions itself against the viewport instead of relying on a positioning wrapper.
+   */
+  .SearchPopupContained {
+    box-sizing: border-box;
     position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    overflow: hidden;
-    padding-top: 4.5rem;
+    inset-block-start: 4.5rem;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    width: min(34rem, calc(100vw - 2rem));
+    max-inline-size: calc(100vw - 2rem);
+    max-height: min(29.5rem, calc(100vh - 6rem));
   }
 
-  .SearchViewportDefault {
+  /* The default popup fills the top layer and scrolls; an inner card holds the content. */
+  .SearchPopupDefault {
+    box-sizing: border-box;
     position: fixed;
     inset: 0;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    outline: 0;
+    overflow: hidden;
   }
 
   .SearchPopupContained,
-  .SearchPopupDefault {
-    position: relative;
+  .SearchCardDefault {
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -192,25 +209,25 @@
       opacity 150ms ease;
   }
 
-  .SearchPopupContained {
-    max-height: min(29.5rem, calc(100vh - 6rem));
-    width: min(34rem, calc(100vw - 2rem));
-  }
-
-  .SearchPopupDefault {
+  .SearchCardDefault {
+    box-sizing: border-box;
     margin: 4.5rem auto;
     width: min(40rem, calc(100vw - 2rem));
   }
 
-  .SearchPopupContained[data-starting-style],
-  .SearchPopupDefault[data-starting-style] {
+  .SearchPopupContained[data-starting-style] {
+    transform: translateX(-50%) translateY(-1rem) scale(0.9);
+    opacity: 0;
+  }
+
+  .SearchPopupDefault[data-starting-style] .SearchCardDefault {
     transform: translateY(-1rem) scale(0.9);
     opacity: 0;
   }
 
   @media (prefers-color-scheme: dark) {
     .SearchPopupContained,
-    .SearchPopupDefault {
+    .SearchCardDefault {
       background: oklch(20% 0.5% 264deg);
       outline-color: hsl(0deg 0% 100% / 25%);
     }
@@ -228,17 +245,23 @@
     padding: 0.5rem 0.5rem 0.375rem;
   }
 
+  /*
+   * A `0%` flex-basis (`flex: 1`) contributes nothing to the height of the `fit-content`
+   * native `<dialog>`, so Safari never grows the popup to its `max-height` and the scroll region
+   * collapses. A content-based basis (`flex: 1 1 auto`) lets the popup size to its contents and
+   * clamp at `max-height`, matching the command-palette demo.
+   */
   .SearchBody {
     display: flex;
     min-height: 0;
-    flex: 1;
+    flex: 1 1 auto;
   }
 
   .SearchScrollAreaRoot {
     position: relative;
     display: flex;
     min-height: 0;
-    flex: 1;
+    flex: 1 1 auto;
     overflow: hidden;
 
     /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
@@ -249,7 +272,7 @@
   }
 
   .SearchScrollAreaViewport {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
