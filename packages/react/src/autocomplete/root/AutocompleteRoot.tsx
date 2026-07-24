@@ -1,9 +1,13 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { AutocompleteRootContext } from './AutocompleteRootContext';
+import { AutocompleteAssistiveHintManager } from '../assistive-hint/AutocompleteAssistiveHint';
 
 /**
  * Groups all parts of the autocomplete.
@@ -38,6 +42,7 @@ export function AutocompleteRoot<ItemValue>(
     defaultValue,
     onValueChange,
     mode = 'list',
+    minLength = 0,
     itemToStringValue,
     ...other
   } = props;
@@ -78,18 +83,31 @@ export function AutocompleteRoot<ItemValue>(
 
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
 
+  // When the query is shorter than `minLength`, suggest nothing so the list stays empty and
+  // `<Autocomplete.Status>` can prompt the user to type more. Only applies to filtered modes.
+  const belowMinLength = minLength > 0 && resolvedQuery.length < minLength;
+
   // In "both", wrap filtering to use only the typed value, ignoring the inline value.
   const resolvedFilter: typeof other.filter = React.useMemo(() => {
     if (mode !== 'both') {
-      return staticItems ? null : baseFilter;
+      if (staticItems) {
+        return null;
+      }
+      if (belowMinLength) {
+        return () => false;
+      }
+      return baseFilter;
     }
     if (baseFilter === null) {
       return null;
     }
+    if (belowMinLength) {
+      return () => false;
+    }
     return (item, _query, toString) => {
       return baseFilter(item, resolvedQuery, toString);
     };
-  }, [baseFilter, mode, resolvedQuery, staticItems]);
+  }, [baseFilter, mode, resolvedQuery, staticItems, belowMinLength]);
 
   function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
     setInlineInputValue('');
@@ -120,6 +138,38 @@ export function AutocompleteRoot<ItemValue>(
     }
   }
 
+  const defaultAssistiveHintId = useBaseUiId();
+  const [customAssistiveHintIds, setCustomAssistiveHintIds] = React.useState<string[]>([]);
+
+  const registerAssistiveHint = useStableCallback((hintId: string) => {
+    setCustomAssistiveHintIds((ids) => [...ids, hintId]);
+    return () => {
+      setCustomAssistiveHintIds((ids) => ids.filter((currentId) => currentId !== hintId));
+    };
+  });
+
+  const hasCustomAssistiveHint = customAssistiveHintIds.length > 0;
+  const activeAssistiveHintId = hasCustomAssistiveHint
+    ? customAssistiveHintIds[customAssistiveHintIds.length - 1]
+    : defaultAssistiveHintId;
+
+  const contextValue = React.useMemo<AutocompleteRootContext>(
+    () => ({
+      minLength,
+      registerAssistiveHint,
+      defaultAssistiveHintId,
+      activeAssistiveHintId,
+      hasCustomAssistiveHint,
+    }),
+    [
+      minLength,
+      registerAssistiveHint,
+      defaultAssistiveHintId,
+      activeAssistiveHintId,
+      hasCustomAssistiveHint,
+    ],
+  );
+
   return (
     <AriaCombobox
       {...other}
@@ -133,7 +183,12 @@ export function AutocompleteRoot<ItemValue>(
       defaultInputValue={defaultValue}
       onInputValueChange={handleValueChange}
       onItemHighlighted={handleItemHighlighted}
-    />
+    >
+      <AutocompleteRootContext.Provider value={contextValue}>
+        {other.children}
+        <AutocompleteAssistiveHintManager />
+      </AutocompleteRootContext.Provider>
+    </AriaCombobox>
   );
 }
 
@@ -189,6 +244,13 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * @default 'list'
    */
   mode?: 'list' | 'both' | 'inline' | 'none' | undefined;
+  /**
+   * The minimum number of characters the user must type before suggestions are shown.
+   * While the query is shorter, the list is kept empty so `<Autocomplete.Status>` can prompt
+   * the user to type more. Only applies to filtered modes (`list` and `both`).
+   * @default 0
+   */
+  minLength?: number | undefined;
   /**
    * Whether the list is rendered inline without using the component's own popup.
    *

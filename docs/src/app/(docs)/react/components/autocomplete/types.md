@@ -34,6 +34,7 @@ Doesn't render its own HTML element.
 | limit                | `number`                                                                                                        | `-1`     | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | locale               | `Intl.LocalesArgument`                                                                                          | -        | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | loopFocus            | `boolean`                                                                                                       | `true`   | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp.                                                              |
+| minLength            | `number`                                                                                                        | `0`      | The minimum number of characters the user must type before suggestions are shown.&#xA;While the query is shorter, the list is kept empty so `<Autocomplete.Status>` can prompt&#xA;the user to type more. Only applies to filtered modes (`list` and `both`).                                                                                                                                                                                                                                                                                                                                                                      |
 | modal                | `boolean`                                                                                                       | `false`  | Determines if the popup enters a modal state when open. `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.                                                                                                                                                                                    |
 | mode                 | `'list' \| 'both' \| 'inline' \| 'none'`                                                                        | `'list'` | Controls how the autocomplete behaves with respect to list filtering and inline autocompletion. `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.`both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).`inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).`none`: items are static (not filtered), and the input value will not change based on the active item. |
 | onItemHighlighted    | `((highlightedValue: ItemValue \| undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void)`   | -        | Callback fired when an item is highlighted or unhighlighted.&#xA;Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.&#xA;The `reason` can be: `'keyboard'`: the highlight changed due to keyboard navigation.`'pointer'`: the highlight changed due to pointer hovering.`'none'`: the highlight changed programmatically.                                                                                                                                                                                              |
@@ -758,7 +759,9 @@ type AutocompleteSeparatorState = {
 ### Status
 
 Displays a status message whose content changes are announced politely to screen readers.
-Useful for conveying the status of an asynchronously loaded list.
+When no `children` are provided, it announces ready-made result counts, the highlighted option,
+empty states, and (when `minLength` is set) a "type more characters" hint.
+Provide `children` to render fully custom content instead.
 This component's root element must remain mounted in the DOM to announce
 changes consistently across screen readers. Avoid hiding or removing the
 component itself with `display: none`, `hidden`, `aria-hidden`, or conditional
@@ -769,6 +772,8 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                                              | Default | Description                                                                                                                                                                                   |
 | :-------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| messages  | `Partial<Autocomplete.Status.Messages>`                                                           | -       | Overrides for the automatically generated announcement strings.&#xA;Useful for internationalization.                                                                                          |
+| children  | `React.ReactNode`                                                                                 | -       | Custom content for the live region. When omitted, ready-made announcements are generated.                                                                                                     |
 | className | `string \| ((state: Autocomplete.Status.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: Autocomplete.Status.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Status.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -781,6 +786,27 @@ Re-export of [Status](#status) props.
 
 ```typescript
 type AutocompleteStatusState = {};
+```
+
+### Status.Messages
+
+```typescript
+type AutocompleteStatusMessages = {
+  /** Announced when the query is shorter than the root's `minLength`. */
+  queryTooShort: (minLength: number) => string;
+  /** Announced when no results match the query. */
+  noResults: () => string;
+  /**
+   * Builds the announcement for the currently highlighted option.
+   * Receives the option label, the total number of results, and the zero-based index.
+   */
+  optionHighlighted: (label: string, count: number, index: number) => string;
+  /**
+   * Builds the announcement for the available results.
+   * Receives the number of results and the return value of `optionHighlighted` (or an empty string).
+   */
+  results: (count: number, highlightedText: string) => string;
+};
 ```
 
 ### Empty
@@ -857,6 +883,32 @@ Re-export of [Row](#row) props.
 
 ```typescript
 type AutocompleteRowState = {};
+```
+
+### AssistiveHint
+
+A visually hidden hint that describes how to operate the autocomplete for screen reader users.
+A default hint is rendered automatically; render this component to customize or translate it.
+The hint is associated with the input via `aria-describedby`, and the association is
+automatically removed after the first input to reduce screen reader verbosity.
+Renders a `<div>` element.
+
+**AssistiveHint Props:**
+
+| Prop      | Type                                                                                                     | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Autocomplete.AssistiveHint.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Autocomplete.AssistiveHint.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Autocomplete.AssistiveHint.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### AssistiveHint.Props
+
+Re-export of [AssistiveHint](#assistivehint) props.
+
+### AssistiveHint.State
+
+```typescript
+type AutocompleteAssistiveHintState = {};
 ```
 
 ### InputGroup
@@ -1017,10 +1069,11 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Trigger`: `Autocomplete.Trigger`, `Autocomplete.Trigger.State`, `Autocomplete.Trigger.Props`
 - `Autocomplete.Input`: `Autocomplete.Input`, `Autocomplete.Input.State`, `Autocomplete.Input.Props`
 - `Autocomplete.InputGroup`: `Autocomplete.InputGroup`, `Autocomplete.InputGroup.State`, `Autocomplete.InputGroup.Props`
+- `Autocomplete.AssistiveHint`: `Autocomplete.AssistiveHint`, `Autocomplete.AssistiveHint.State`, `Autocomplete.AssistiveHint.Props`
 - `Autocomplete.Icon`: `Autocomplete.Icon`, `Autocomplete.Icon.State`, `Autocomplete.Icon.Props`
 - `Autocomplete.Clear`: `Autocomplete.Clear`, `Autocomplete.Clear.State`, `Autocomplete.Clear.Props`
 - `Autocomplete.List`: `Autocomplete.List`, `Autocomplete.List.State`, `Autocomplete.List.Props`
-- `Autocomplete.Status`: `Autocomplete.Status`, `Autocomplete.Status.State`, `Autocomplete.Status.Props`
+- `Autocomplete.Status`: `Autocomplete.Status`, `Autocomplete.Status.State`, `Autocomplete.Status.Props`, `Autocomplete.Status.Messages`
 - `Autocomplete.Portal`: `Autocomplete.Portal`, `Autocomplete.Portal.State`, `Autocomplete.Portal.Props`
 - `Autocomplete.Backdrop`: `Autocomplete.Backdrop`, `Autocomplete.Backdrop.Props`, `Autocomplete.Backdrop.State`
 - `Autocomplete.Positioner`: `Autocomplete.Positioner`, `Autocomplete.Positioner.State`, `Autocomplete.Positioner.Props`
@@ -1035,7 +1088,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteAssistiveHintState`, `AutocompleteAssistiveHintProps`, `AutocompleteStatusState`, `AutocompleteStatusMessages`, `AutocompleteStatusProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
@@ -1056,6 +1109,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Autocomplete.Input.Props`: `AutocompleteInputProps`
 - `Autocomplete.InputGroup.State`: `AutocompleteInputGroupState`
 - `Autocomplete.InputGroup.Props`: `AutocompleteInputGroupProps`
+- `Autocomplete.AssistiveHint.State`: `AutocompleteAssistiveHintState`
+- `Autocomplete.AssistiveHint.Props`: `AutocompleteAssistiveHintProps`
 - `Autocomplete.Icon.State`: `AutocompleteIconState`
 - `Autocomplete.Icon.Props`: `AutocompleteIconProps`
 - `Autocomplete.Clear.State`: `AutocompleteClearState`
@@ -1064,6 +1119,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Autocomplete.List.Props`: `AutocompleteListProps`
 - `Autocomplete.Status.State`: `AutocompleteStatusState`
 - `Autocomplete.Status.Props`: `AutocompleteStatusProps`
+- `Autocomplete.Status.Messages`: `AutocompleteStatusMessages`
 - `Autocomplete.Portal.State`: `AutocompletePortalState`
 - `Autocomplete.Portal.Props`: `AutocompletePortalProps`
 - `Autocomplete.Backdrop.Props`: `AutocompleteBackdropProps`

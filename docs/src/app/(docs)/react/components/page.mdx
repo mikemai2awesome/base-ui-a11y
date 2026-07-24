@@ -167,12 +167,15 @@ An input that suggests options as you type.
     - Grid layout
     - Virtualized
       - Memoizing items
+    - Minimum query length
+    - Progressive enhancement
   - Accessibility
   - API reference
     - Root
     - Value
     - Input
     - InputGroup
+    - AssistiveHint
     - Trigger
     - Icon
     - Clear
@@ -194,7 +197,7 @@ An input that suggests options as you type.
   - useFilteredItems
 - Exports:
   - Autocomplete - Root
-    - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
+    - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, minLength, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
   - Autocomplete - Trigger
     - Props: className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
@@ -236,12 +239,14 @@ An input that suggests options as you type.
   - Autocomplete - Separator
     - Props: className, orientation, render, style
   - Autocomplete - Status
-    - Props: className, render, style
+    - Props: children, className, messages, render, style
   - Autocomplete - Empty
     - Props: className, render, style
   - Autocomplete - Collection
     - Props: children
   - Autocomplete - Row
+    - Props: className, render, style
+  - Autocomplete - AssistiveHint
     - Props: className, render, style
   - Autocomplete - InputGroup
     - Props: className, render, style
@@ -249,7 +254,7 @@ An input that suggests options as you type.
   - Autocomplete - useFilter
     - Parameters: options
   - Autocomplete - useFilteredItems
-- Types: Autocomplete.Arrow.Props, Autocomplete.Arrow.State, Autocomplete.Backdrop.Props, Autocomplete.Backdrop.State, Autocomplete.Clear.Props, Autocomplete.Clear.State, Autocomplete.Collection.Props, Autocomplete.Collection.State, Autocomplete.Empty.Props, Autocomplete.Empty.State, Autocomplete.Group.Props, Autocomplete.Group.State, Autocomplete.GroupLabel.Props, Autocomplete.GroupLabel.State, Autocomplete.Icon.Props, Autocomplete.Icon.State, Autocomplete.Input.Props, Autocomplete.Input.State, Autocomplete.InputGroup.Props, Autocomplete.InputGroup.State, Autocomplete.Item.Props, Autocomplete.Item.State, Autocomplete.List.Props, Autocomplete.List.State, Autocomplete.Popup.Props, Autocomplete.Popup.State, Autocomplete.Portal.Props, Autocomplete.Portal.State, Autocomplete.Positioner.Props, Autocomplete.Positioner.State, Autocomplete.Root.Actions, Autocomplete.Root.ChangeEventDetails, Autocomplete.Root.ChangeEventReason, Autocomplete.Root.HighlightEventDetails, Autocomplete.Root.HighlightEventReason, Autocomplete.Root.Props, Autocomplete.Root.State, Autocomplete.Row.Props, Autocomplete.Row.State, Autocomplete.Separator.Props, Autocomplete.Separator.State, Autocomplete.Status.Props, Autocomplete.Status.State, Autocomplete.Trigger.Props, Autocomplete.Trigger.State, Autocomplete.Value.Props, Autocomplete.Value.State
+- Types: Autocomplete.Arrow.Props, Autocomplete.Arrow.State, Autocomplete.AssistiveHint.Props, Autocomplete.AssistiveHint.State, Autocomplete.Backdrop.Props, Autocomplete.Backdrop.State, Autocomplete.Clear.Props, Autocomplete.Clear.State, Autocomplete.Collection.Props, Autocomplete.Collection.State, Autocomplete.Empty.Props, Autocomplete.Empty.State, Autocomplete.Group.Props, Autocomplete.Group.State, Autocomplete.GroupLabel.Props, Autocomplete.GroupLabel.State, Autocomplete.Icon.Props, Autocomplete.Icon.State, Autocomplete.Input.Props, Autocomplete.Input.State, Autocomplete.InputGroup.Props, Autocomplete.InputGroup.State, Autocomplete.Item.Props, Autocomplete.Item.State, Autocomplete.List.Props, Autocomplete.List.State, Autocomplete.Popup.Props, Autocomplete.Popup.State, Autocomplete.Portal.Props, Autocomplete.Portal.State, Autocomplete.Positioner.Props, Autocomplete.Positioner.State, Autocomplete.Root.Actions, Autocomplete.Root.ChangeEventDetails, Autocomplete.Root.ChangeEventReason, Autocomplete.Root.HighlightEventDetails, Autocomplete.Root.HighlightEventReason, Autocomplete.Root.Props, Autocomplete.Root.State, Autocomplete.Row.Props, Autocomplete.Row.State, Autocomplete.Separator.Props, Autocomplete.Separator.State, Autocomplete.Status.Messages, Autocomplete.Status.Props, Autocomplete.Status.State, Autocomplete.Trigger.Props, Autocomplete.Trigger.State, Autocomplete.Value.Props, Autocomplete.Value.State
 
 </details>
 

@@ -3,6 +3,8 @@ export * as Autocomplete from './index.parts';
 export type * from './root/AutocompleteRoot';
 export type * from './trigger/AutocompleteTrigger';
 export type * from './input-group/AutocompleteInputGroup';
+export type * from './assistive-hint/AutocompleteAssistiveHint';
+export type * from './status/AutocompleteStatus';
 export type * from './item/AutocompleteItem';
 export type * from './value/AutocompleteValue';
 
@@ -58,10 +60,6 @@ export type {
   ComboboxEmptyProps as AutocompleteEmptyProps,
   ComboboxEmptyState as AutocompleteEmptyState,
 } from '../combobox/empty/ComboboxEmpty';
-export type {
-  ComboboxStatusProps as AutocompleteStatusProps,
-  ComboboxStatusState as AutocompleteStatusState,
-} from '../combobox/status/ComboboxStatus';
 export type {
   ComboboxCollectionState as AutocompleteCollectionState,
   ComboboxCollectionProps as AutocompleteCollectionProps,

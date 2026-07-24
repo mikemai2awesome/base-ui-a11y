@@ -2149,10 +2149,48 @@ describe('<Autocomplete.Root />', () => {
         </Field.Root>,
       );
 
-      expect(screen.getByTestId('input')).toHaveAttribute(
-        'aria-describedby',
+      // The input also references the default assistive hint, so assert containment.
+      expect(screen.getByTestId('input').getAttribute('aria-describedby')).toContain(
         screen.getByTestId('description').id,
       );
+    });
+  });
+
+  describe('prop: minLength', () => {
+    function renderMinLength(minLength: number) {
+      return (
+        <Autocomplete.Root items={['apple', 'apricot', 'avocado']} minLength={minLength}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+      );
+    }
+
+    it('suppresses suggestions until the query reaches minLength', async () => {
+      const { user } = await render(renderMinLength(3));
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'ap');
+
+      expect(screen.queryByRole('option')).toBe(null);
+
+      await user.type(input, 'p');
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option').length).toBeGreaterThan(0);
+      });
     });
   });
 });

@@ -7,7 +7,6 @@ import styles from './index.module.css';
 
 export default function ExampleAutocompleteCommandPalette() {
   const [open, setOpen] = React.useState(false);
-  const shortcutsDescriptionId = React.useId();
 
   function handleItemClick() {
     setOpen(false);
@@ -18,77 +17,65 @@ export default function ExampleAutocompleteCommandPalette() {
       <Dialog.Trigger className={styles.Button}>Open command palette</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
-        <Dialog.Viewport className={styles.Viewport}>
-          <Dialog.Popup className={styles.Popup} aria-label="Command palette">
-            <Autocomplete.Root
-              open
-              inline
-              items={groupedItems}
-              autoHighlight="always"
-              keepHighlight
-            >
-              <Autocomplete.Input
-                className={styles.Input}
-                aria-label="Search commands"
-                aria-describedby={shortcutsDescriptionId}
-                placeholder="Search for apps and commands…"
-              />
-              <Dialog.Close className={styles.VisuallyHidden}>Close command palette</Dialog.Close>
+        <Dialog.Popup className={styles.Popup} aria-label="Command palette">
+          <Autocomplete.Root open inline items={groupedItems} autoHighlight="always" keepHighlight>
+            <Autocomplete.Input
+              className={styles.Input}
+              aria-label="Search commands"
+              placeholder="Search for apps and commands…"
+            />
+            <Dialog.Close className={styles.VisuallyHidden}>Close command palette</Dialog.Close>
 
-              <ScrollArea.Root className={styles.ListArea}>
-                <ScrollArea.Viewport className={styles.ListViewport}>
-                  <ScrollArea.Content className={styles.ListContent}>
-                    <Autocomplete.Empty>
-                      <div className={styles.Empty}>No results found.</div>
-                    </Autocomplete.Empty>
+            <ScrollArea.Root className={styles.ListArea}>
+              <ScrollArea.Viewport className={styles.ListViewport}>
+                <ScrollArea.Content className={styles.ListContent}>
+                  <Autocomplete.Empty>
+                    <div className={styles.Empty}>No results found.</div>
+                  </Autocomplete.Empty>
 
-                    <Autocomplete.List className={styles.List}>
-                      {(group: Group) => (
-                        <Autocomplete.Group
-                          key={group.value}
-                          items={group.items}
-                          className={styles.Group}
-                        >
-                          <Autocomplete.GroupLabel className={styles.GroupLabel}>
-                            {group.value}
-                          </Autocomplete.GroupLabel>
-                          <Autocomplete.Collection>
-                            {(item: Item) => (
-                              <Autocomplete.Item
-                                key={item.value}
-                                value={item}
-                                className={styles.Item}
-                                onClick={handleItemClick}
-                              >
-                                <span className={styles.ItemLabel}>{item.label}</span>
-                                <span className={styles.ItemType}>
-                                  {group.value === 'Suggestions' ? 'Application' : 'Command'}
-                                </span>
-                              </Autocomplete.Item>
-                            )}
-                          </Autocomplete.Collection>
-                        </Autocomplete.Group>
-                      )}
-                    </Autocomplete.List>
-                  </ScrollArea.Content>
-                </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar className={styles.Scrollbar}>
-                  <ScrollArea.Thumb className={styles.ScrollbarThumb} />
-                </ScrollArea.Scrollbar>
-              </ScrollArea.Root>
+                  <Autocomplete.List className={styles.List}>
+                    {(group: Group) => (
+                      <Autocomplete.Group
+                        key={group.value}
+                        items={group.items}
+                        className={styles.Group}
+                      >
+                        <Autocomplete.GroupLabel className={styles.GroupLabel}>
+                          {group.value}
+                        </Autocomplete.GroupLabel>
+                        <Autocomplete.Collection>
+                          {(item: Item) => (
+                            <Autocomplete.Item
+                              key={item.value}
+                              value={item}
+                              className={styles.Item}
+                              onClick={handleItemClick}
+                            >
+                              <span className={styles.ItemLabel}>{item.label}</span>
+                              <span className={styles.ItemType}>
+                                {group.value === 'Suggestions' ? 'Application' : 'Command'}
+                              </span>
+                            </Autocomplete.Item>
+                          )}
+                        </Autocomplete.Collection>
+                      </Autocomplete.Group>
+                    )}
+                  </Autocomplete.List>
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar className={styles.Scrollbar}>
+                <ScrollArea.Thumb className={styles.ScrollbarThumb} />
+              </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
 
-              <div className={styles.Footer}>
-                <span id={shortcutsDescriptionId} className={styles.VisuallyHidden}>
-                  Use Enter to activate the highlighted item.
-                </span>
-                <div className={styles.FooterLeft}>
-                  <span>Activate</span>
-                  <kbd className={styles.Kbd}>Enter</kbd>
-                </div>
+            <div className={styles.Footer}>
+              <div className={styles.FooterLeft}>
+                <span>Activate</span>
+                <kbd className={styles.Kbd}>Enter</kbd>
               </div>
-            </Autocomplete.Root>
-          </Dialog.Popup>
-        </Dialog.Viewport>
+            </div>
+          </Autocomplete.Root>
+        </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
   );

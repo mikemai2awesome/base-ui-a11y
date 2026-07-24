@@ -32,6 +32,9 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
     <Autocomplete.Value />
   </Autocomplete.InputGroup>
 
+  {/* A default AssistiveHint is rendered automatically. Include this part only to customize it. */}
+  <Autocomplete.AssistiveHint />
+
   <Autocomplete.Portal>
     <Autocomplete.Backdrop />
     <Autocomplete.Positioner>
@@ -142,7 +145,11 @@ import { DemoAutocompleteAutoHighlight } from './demos/auto-highlight';
 
 ### Command palette
 
-Use the autocomplete input to filter a list of command items that perform an action when clicked.
+Use the autocomplete input to filter a list of command items that perform an action when clicked. Render the list inline inside a [Dialog](/react/components/dialog) by combining `inline` with `open` on `<Autocomplete.Root>`, and pair it with `autoHighlight="always"` so the first result is ready to activate with <kbd>Enter</kbd>.
+
+Because a modal `<Dialog.Popup>` renders a native [`<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog) promoted to the browser's [top layer](https://developer.mozilla.org/en-US/docs/Glossary/Top_layer), position the popup itself (for example `position: fixed`)—don't wrap it in `<Dialog.Viewport>`, which only positions non-modal dialogs.
+
+There's no need to add a keyboard-hint description to the input: `<Autocomplete.Root>` renders the default [assistive hint](#accessibility) automatically.
 
 import { DemoAutocompleteCommandPalette } from './demos/command-palette';
 
@@ -189,6 +196,112 @@ const SuggestionItem = React.memo(function SuggestionItem({ item }: { item: Sugg
 </Autocomplete.List>;
 ```
 
+### Minimum query length
+
+Require a few characters before suggesting options using the `minLength` prop. While the query is
+shorter than `minLength`, the list stays empty and `<Autocomplete.Status>` prompts the user to type
+more.
+
+```tsx title="Minimum query length"
+<Autocomplete.Root items={items} minLength={3}>
+  <Autocomplete.Input />
+  <Autocomplete.Portal>
+    <Autocomplete.Positioner>
+      <Autocomplete.Popup>
+        {/* Announces "Type 3 or more characters for results." while the query is too short. */}
+        <Autocomplete.Status />
+        <Autocomplete.List>
+          {(item) => <Autocomplete.Item value={item}>{item}</Autocomplete.Item>}
+        </Autocomplete.List>
+      </Autocomplete.Popup>
+    </Autocomplete.Positioner>
+  </Autocomplete.Portal>
+</Autocomplete.Root>
+```
+
+### Progressive enhancement
+
+For a small, known list of options, render a `<select>` on the server and enhance it into an
+autocomplete on the client. This keeps the field usable before JavaScript loads and preserves native
+form submission.
+
+```tsx title="Enhancing a <select>"
+'use client';
+import * as React from 'react';
+import { Autocomplete } from '@base-ui/react/autocomplete';
+
+function EnhancedSelect({
+  name,
+  label,
+  options,
+  defaultValue = '',
+}: {
+  name: string;
+  label: string;
+  options: { value: string; label: string }[];
+  defaultValue?: string;
+}) {
+  const [enhanced, setEnhanced] = React.useState(false);
+  const [value, setValue] = React.useState(
+    () => options.find((option) => option.value === defaultValue)?.label ?? '',
+  );
+
+  // Enhance only after hydration so the native <select> works without JavaScript.
+  React.useEffect(() => setEnhanced(true), []);
+
+  const selectedValue = options.find((option) => option.label === value)?.value ?? '';
+
+  if (!enhanced) {
+    return (
+      <label>
+        {label}
+        <select name={name} defaultValue={defaultValue}>
+          <option value="">Select…</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  }
+
+  return (
+    <React.Fragment>
+      {/* Submit the option's value, not its visible label. */}
+      <input type="hidden" name={name} value={selectedValue} />
+      <Autocomplete.Root
+        items={options.map((option) => option.label)}
+        value={value}
+        onValueChange={setValue}
+        autoHighlight
+      >
+        <label>
+          {label}
+          <Autocomplete.Input />
+        </label>
+        <Autocomplete.AssistiveHint />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.Status />
+              <Autocomplete.List>
+                {(label: string) => (
+                  <Autocomplete.Item key={label} value={label}>
+                    {label}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>
+    </React.Fragment>
+  );
+}
+```
+
 ## Accessibility
 
 - **Role**: `<Autocomplete.Input>` renders `role="combobox"`, and `<Autocomplete.List>` renders `role="listbox"` (or `role="grid"` in grid layouts).
@@ -200,8 +313,10 @@ const SuggestionItem = React.memo(function SuggestionItem({ item }: { item: Sugg
   - <kbd>Escape</kbd> — closes the popup.
   - Typing filters the list; `mode` controls the value of `aria-autocomplete` (`list`, `both`, `inline`, or `none`).
 - **Labeling**: the input needs an accessible name via `<label>`, `Field`, or `aria-label`—see [Usage guidelines](#usage-guidelines) above. `<Autocomplete.GroupLabel>` names its `<Autocomplete.Group>` through `aria-labelledby`. Keep `<Autocomplete.Status>` and `<Autocomplete.Empty>` mounted—they're `aria-live="polite"` regions that announce result counts and empty states.
+- **Ready-made announcements**: `<Autocomplete.Status>` announces the number of available results, the highlighted option ("_Apple 1 of 8 is highlighted_"), empty states, and—when `minLength` is set on the root—a prompt to type more characters. Provide `children` to override the content entirely, or pass the `messages` prop to localize the generated strings.
+- **Assistive hint**: a visually hidden instruction (how to operate the list with the keyboard) is included **by default** and associated with the input via `aria-describedby`. The association is removed automatically after the first keystroke to reduce screen reader verbosity. Render `<Autocomplete.AssistiveHint>` only to customize or translate the text—doing so replaces the default hint.
 
-This pattern loosely follows the [ARIA APG Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
+This pattern loosely follows the [ARIA APG Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The assistive hint and status announcements are inspired by GOV.UK's [accessible-autocomplete](https://github.com/alphagov/accessible-autocomplete).
 
 ## API reference
 
@@ -222,6 +337,10 @@ import { TypesAutocomplete } from './types';
 ### InputGroup
 
 <TypesAutocomplete.InputGroup />
+
+### AssistiveHint
+
+<TypesAutocomplete.AssistiveHint />
 
 ### Trigger
 

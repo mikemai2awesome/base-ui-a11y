@@ -75,25 +75,19 @@
   }
 }
 
-.Viewport {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 4.5rem 0.5rem 0.5rem;
-  overflow: hidden;
-}
-
 .Popup {
   box-sizing: border-box;
-  position: relative;
+  position: fixed;
+  inset-block-start: 4.5rem;
+  inset-inline-start: 50%;
+  translate: -50% 0;
   width: calc(100vw - 1rem);
   max-width: 28rem;
   background-color: white;
   color: oklch(14.5% 0 0deg);
   transition:
-    transform 150ms,
+    translate 150ms,
+    scale 150ms,
     opacity 150ms;
   max-height: min(36rem, calc(100dvh - 5rem));
   display: flex;
@@ -111,7 +105,8 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: translateY(-1rem) scale(0.95);
+    translate: -50% -1rem;
+    scale: 0.95;
   }
 }
 

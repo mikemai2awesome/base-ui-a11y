@@ -92,6 +92,11 @@ export type State = {
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
   hasInputValue: boolean;
+  /**
+   * The `id` of an assistive hint element that describes the input.
+   * Set by `<Autocomplete.AssistiveHint>`; inert for other combobox-based components.
+   */
+  assistiveHintId: string | undefined;
 };
 
 export type ComboboxStore = Store<State>;
@@ -177,4 +182,5 @@ export const selectors = {
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
   submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
+  assistiveHintId: createSelector((state: State) => state.assistiveHintId),
 };

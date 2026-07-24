@@ -86,6 +86,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const rootId = useStore(store, selectors.id);
   const inline = useStore(store, selectors.inline);
   const modal = useStore(store, selectors.modal);
+  const assistiveHintId = useStore(store, selectors.assistiveHintId);
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
@@ -123,6 +124,14 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     hasPositionerParent || !validation
       ? elementProps
       : validation.getValidationProps(disabled, elementProps);
+
+  // Append the assistive hint id (set by `<Autocomplete.AssistiveHint>`) to the composed
+  // `aria-describedby` so screen readers announce the instructions. Inert when unset.
+  const composedAriaDescribedBy = assistiveHintId
+    ? [(validationProps as Record<string, any>)['aria-describedby'], assistiveHintId]
+        .filter(Boolean)
+        .join(' ')
+    : undefined;
 
   const state: ComboboxInputState = {
     ...fieldStateForInput,
@@ -496,6 +505,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         },
       },
       validationProps,
+      ...(composedAriaDescribedBy ? [{ 'aria-describedby': composedAriaDescribedBy }] : []),
     ],
     stateAttributesMapping: triggerStateAttributesMapping,
   });

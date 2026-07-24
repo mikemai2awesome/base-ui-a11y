@@ -385,6 +385,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         autoHighlight: autoHighlightMode,
         submitOnItemClick,
         hasInputValue,
+        assistiveHintId: undefined,
         mounted: false,
         forceMounted: false,
         transitionStatus: 'idle',
