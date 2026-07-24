@@ -22,7 +22,7 @@ export default function ExampleAutocompleteCommandPalette() {
           className="fixed top-18 left-1/2 flex max-h-[min(36rem,calc(100dvh-5rem))] w-[calc(100vw-1rem)] max-w-md -translate-x-1/2 flex-col border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[translate,scale,opacity] duration-150 data-ending-style:-translate-y-4 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:-translate-y-4 data-starting-style:scale-95 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
           aria-label="Command palette"
         >
-          <Autocomplete.Root open inline items={groupedItems} autoHighlight>
+          <Autocomplete.Root open inline items={groupedItems}>
             <label className="flex flex-col">
               <span className="px-3 py-2 text-xs leading-none font-normal text-neutral-600 dark:text-neutral-400">
                 Search commands

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
 import type {
@@ -97,6 +97,7 @@ export function SearchBar({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDialogElement>(null);
   const ga = useGoogleAnalytics();
+  const router = useRouter();
 
   // Search session tracking
   const searchQueryRef = React.useRef('');
@@ -257,10 +258,25 @@ export function SearchBar({
 
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
 
-  const handleItemClick = React.useCallback(() => {
-    selectedResultRef.current = highlightedResultRef.current ?? null;
-    handleCloseDialog(false);
-  }, [handleCloseDialog]);
+  // Options are non-interactive `role="option"` elements (not anchors) so screen reader arrow
+  // navigation isn't captured by a native link once the browser forwards the virtual focus to the
+  // active descendant. Navigation is therefore driven programmatically on selection, preserving
+  // open-in-new-tab for modifier/middle clicks.
+  const handleResultSelect = React.useCallback(
+    (result: SearchResult, event: React.MouseEvent) => {
+      const url = buildResultUrl(result);
+      selectedResultRef.current = result;
+
+      if (event.metaKey || event.ctrlKey || event.button === 1) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      handleCloseDialog(false);
+      router.push(url);
+    },
+    [buildResultUrl, handleCloseDialog, router],
+  );
 
   const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {
     highlightedResultRef.current = item;
@@ -298,6 +314,7 @@ export function SearchBar({
           id="search-input"
           ref={inputRef}
           placeholder="Search"
+          aria-label="Search documentation"
           className="SearchInput"
           onKeyDownCapture={handleKeyDownCapture}
         />
@@ -326,10 +343,13 @@ export function SearchBar({
             <Autocomplete.Item
               key={result.id || i}
               value={result}
-              render={
-                <Link href={buildResultUrl(result)} onNavigate={handleItemClick} tabIndex={-1} />
-              }
               className="SearchOptionItem"
+              onClick={(event: React.MouseEvent) => handleResultSelect(result, event)}
+              onAuxClick={(event: React.MouseEvent) => {
+                if (event.button === 1) {
+                  handleResultSelect(result, event);
+                }
+              }}
             >
               <SearchItem result={result} />
             </Autocomplete.Item>
@@ -337,7 +357,7 @@ export function SearchBar({
         </Autocomplete.Collection>
       </Autocomplete.Group>
     ),
-    [buildResultUrl, handleItemClick],
+    [handleResultSelect],
   );
 
   return (
@@ -360,7 +380,6 @@ export function SearchBar({
               inline
               itemToStringValue={itemToStringValue}
               filter={null}
-              autoHighlight
             >
               <div className="SearchHeadContained">{searchInput}</div>
               <div className="SearchBody">
@@ -415,7 +434,6 @@ export function SearchBar({
                       inline
                       itemToStringValue={itemToStringValue}
                       filter={null}
-                      autoHighlight
                     >
                       <div className="SearchHeadDefault">{searchInput}</div>
                       <div>
