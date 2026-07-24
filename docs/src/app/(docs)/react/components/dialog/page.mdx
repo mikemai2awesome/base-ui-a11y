@@ -302,6 +302,8 @@ By default, a modal dialog is promoted to the browser's [top layer](https://deve
 
 **Raising toasts over modal dialogs? Use `topLayer={false}`.**
 
+While a default (top-layer) modal is open, the browser makes the rest of the page inert, so content _outside_ the dialog—including [live region](https://www.w3.org/WAI/ARIA/apg/practices/live-regions/) updates such as toasts—is not announced by screen readers and can't be reached. If updates raised elsewhere on the page must reach the user while the dialog is open, set `topLayer={false}` so those regions stay announced and interactive above the dialog.
+
 Because a `topLayer={false}` dialog stacks with the rest of the page by `z-index` alone rather than being elevated automatically, give any overlay that must stay actionable—like a toast with an Undo button—a higher `z-index` than the dialog's popup and backdrop.
 
 import { DemoDialogPageToasts } from './demos/page-toasts';
@@ -321,6 +323,8 @@ import { DemoDialogPageToasts } from './demos/page-toasts';
   - <kbd>Enter</kbd> / <kbd>Space</kbd> — activates the focused trigger or button.
 - **Focus management**: opening the dialog moves focus to its first focusable element (or to the popup itself on touch, to avoid triggering the virtual keyboard). Closing it returns focus to the trigger that opened it. Render `<Dialog.Close>` inside the popup so touch screen reader users always have a way to dismiss it when `modal` traps focus.
 - **Non-modal dialogs**: setting `modal={false}` removes the focus trap and lets the rest of the page stay interactive—use this only when the dialog's content doesn't require the user's full attention.
+- **Live regions while open**: a default (top-layer) modal makes the rest of the page inert, so [live region](https://www.w3.org/WAI/ARIA/apg/practices/live-regions/) updates outside the dialog aren't announced while it's open. See [Page overlays above a modal dialog](#page-overlays-above-a-modal-dialog) and use `topLayer={false}` when those announcements must still reach the user.
+- **Backdrop**: render the overlay with `<Dialog.Backdrop>`, which stays in sync with the dialog's open state and transitions. Because a modal popup is a native `<dialog>`, keep the UA `dialog::backdrop` transparent (reset it in your global styles) so it doesn't dim the page on top of `<Dialog.Backdrop>`.
 
 ## API reference
 

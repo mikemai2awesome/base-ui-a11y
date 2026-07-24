@@ -443,6 +443,15 @@
     background-color: var(--color-selection);
   }
 
+  /*
+   * A modal `<Dialog.Popup>` renders a native `<dialog>`, which the UA paints with a translucent
+   * `::backdrop` (`rgba(0, 0, 0, 0.1)`). `<Dialog.Backdrop>` already renders the overlay, so the
+   * native one would double-dim the page. Neutralize it and let `<Dialog.Backdrop>` be authoritative.
+   */
+  dialog::backdrop {
+    background-color: transparent;
+  }
+
   /* Debugging red text? You just forgot to set or inherit color in your demo. */
   :where([data-demo]) {
     color: red;
