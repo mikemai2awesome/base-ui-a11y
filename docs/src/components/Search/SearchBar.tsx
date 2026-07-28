@@ -370,6 +370,7 @@ export function SearchBar({
             initialFocus={inputRef}
             data-open={dialogOpen}
             className="SearchPopupContained"
+            aria-label="Search"
           >
             <Autocomplete.Root
               items={searchResults.results}
@@ -420,6 +421,7 @@ export function SearchBar({
             initialFocus={inputRef}
             data-open={dialogOpen}
             className="SearchPopupDefault"
+            aria-label="Search"
           >
             <ScrollArea.Root style={{ position: undefined }} className="SearchRootScrollable">
               <ScrollArea.Viewport className="SearchRootScrollable">

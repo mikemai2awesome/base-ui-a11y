@@ -2,8 +2,12 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { platform } from '@base-ui/utils/platform';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '../../floating-ui-react/utils/element';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type BaseUIComponentProps } from '../../internals/types';
@@ -39,6 +43,14 @@ function supportsNativeDialog(): boolean {
     typeof window.HTMLDialogElement.prototype.showModal === 'function'
   );
 }
+
+// Delays for the Safari/VoiceOver workaround below. The first must outlast the focus manager's
+// initial (rAF-deferred) focus and WebKit's post-layout accessibility subtree processing, so the
+// re-fired focus lands after the dialog exists in the isolated tree. The second separates the two
+// focus moves across ticks: a synchronous bounce back to the same element is coalesced by WebKit
+// into a no-op that posts no accessibility notification, so VoiceOver would never be told.
+const WEBKIT_DIALOG_FOCUS_REASSERT_DELAY = 100;
+const WEBKIT_DIALOG_FOCUS_RESTORE_DELAY = 50;
 
 /**
  * A container for the dialog contents.
@@ -128,6 +140,42 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       dialog.removeAttribute('open');
     };
   }, [mounted, modal, canUseNativeDialog, floatingElement]);
+
+  // Safari + VoiceOver (WebKit bug 314893) drops the focus notification fired when a dialog opens:
+  // the dialog's accessibility subtree isn't in VoiceOver's isolated tree yet at the moment focus
+  // moves inside it, so AppKit's synchronous focused-element query returns nil and no notification is
+  // posted. VoiceOver's cursor stays on the trigger and nothing in the dialog is announced (the same
+  // state a manual Tab press resyncs). Once the subtree has been processed, re-firing focus posts a
+  // fresh notification VoiceOver honors — but the two moves must be on separate ticks: focus off the
+  // dialog element, then back to the intended target, so WebKit registers a genuine focus change.
+  const focusBounceTimeout = useTimeout();
+  const focusRestoreTimeout = useTimeout();
+  useIsoLayoutEffect(() => {
+    if (!nativeModalActive || !mounted || !open || !platform.engine.webkit) {
+      return undefined;
+    }
+    const dialog = floatingElement as HTMLElement | null;
+    if (dialog == null) {
+      return undefined;
+    }
+    focusBounceTimeout.start(WEBKIT_DIALOG_FOCUS_REASSERT_DELAY, () => {
+      const target = activeElement(ownerDocument(dialog));
+      // Only nudge once focus has landed on a descendant; bouncing keeps focus inside the dialog.
+      if (target == null || target === dialog || !contains(dialog, target)) {
+        return;
+      }
+      dialog.focus({ preventScroll: true });
+      focusRestoreTimeout.start(WEBKIT_DIALOG_FOCUS_RESTORE_DELAY, () => {
+        if ((target as HTMLElement).isConnected && contains(dialog, target)) {
+          (target as HTMLElement).focus({ preventScroll: true });
+        }
+      });
+    });
+    return () => {
+      focusBounceTimeout.clear();
+      focusRestoreTimeout.clear();
+    };
+  }, [focusBounceTimeout, focusRestoreTimeout, nativeModalActive, mounted, open, floatingElement]);
 
   const state: DialogPopupState = {
     open,
